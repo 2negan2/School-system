@@ -1,0 +1,42 @@
+RewriteEngine On
+
+# 1. Security: Disable directory browsing (prevents people from seeing your file list)
+Options -Indexes
+
+# 2. External Redirect: If user loads .php in browser, redirect to extensionless URL
+# e.g. /public/create/student_wizard.php -> /public/create/student_wizard.php
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^.]+)\.php [NC]
+RewriteRule ^(public/.*)$ %1 [R=301,L]
+
+# 3. Internal Rewrite: Map extensionless URL back to .php file
+# e.g. /dashboard -> /dashboard.php
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.*?)/?$ $1.php [L]
+
+# 4. Optional: Custom Error Page
+# ErrorDocument 404 /404.php
+
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+    # IMPORTANT: Change this to match your folder name
+    RewriteBase /Shool/
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Handle Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
